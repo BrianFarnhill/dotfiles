@@ -77,13 +77,13 @@ plugins=(
     git-extras
     pip
     python
-    #zsh-syntax-highlighting
+    zsh-syntax-highlighting
     encode64
     jsontools
     node
     npm
     urltools
-    #zsh-autosuggestions
+    zsh-autosuggestions
 )
 source $ZSH/oh-my-zsh.sh
 
