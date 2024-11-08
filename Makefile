@@ -7,9 +7,9 @@ export XDG_CONFIG_HOME = $(HOME)/.config
 
 all: $(OS)
 
-macos: core-macos link devtools
+macos: core-macos devtools link
 
-linux: core-linux link devtools
+linux: core-linux devtools link
 
 core-macos: brew 
 
