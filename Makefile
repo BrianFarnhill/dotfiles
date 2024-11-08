@@ -55,4 +55,4 @@ unlink: stow-$(OS)
 devtools: mise
 
 mise: 
-	command -v nvm || curl https://mise.run | sh
+	is-executable mise || curl https://mise.run | sh
