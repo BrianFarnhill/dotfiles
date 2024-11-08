@@ -52,7 +52,7 @@ unlink: stow-$(OS)
 	for FILE in $$(\ls -A dotfiles); do if [ -f $(HOME)/$$FILE.bak ]; then \
 		mv -v $(HOME)/$$FILE.bak $(HOME)/$$FILE; fi; done
 
-devtools: nvm
+devtools: mise
 
-nvm: 
-	command -v nvm || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+mise: 
+	command -v nvm || curl https://mise.run | sh
