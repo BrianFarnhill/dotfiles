@@ -7,7 +7,7 @@ export XDG_CONFIG_HOME = $(HOME)/.config
 
 all: $(OS)
 
-macos: core-macos devtools link
+macos: core-macos devtools packages link
 
 linux: core-linux devtools link
 
@@ -17,6 +17,9 @@ core-linux:
 	sudo apt-get update
 	sudo apt-get upgrade -y
 	sudo apt-get dist-upgrade -f
+	for NAME in $$(cat install/apt-packages); do sudo apt-get install $$NAME; done
+
+packages: brew-packages cask-apps
 
 stow-macos: brew
 	is-executable stow || brew install stow
@@ -39,6 +42,15 @@ zsh-linux:
 
 brew:
 	is-executable brew || curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash
+
+brew-packages: brew
+	brew bundle --file=$(DOTFILES_DIR)/install/Brewfile || true
+
+cask-apps: brew
+	brew bundle --file=$(DOTFILES_DIR)/install/Caskfile || true
+
+vscode-extensions: cask-apps
+	for EXT in $$(cat install/code-extensions); do code --install-extension $$EXT; done
 
 link: zsh stow-$(OS)
 	for FILE in $$(\ls -A dotfiles); do if [ -f $(HOME)/$$FILE -a ! -h $(HOME)/$$FILE ]; then \
