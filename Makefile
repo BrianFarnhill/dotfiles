@@ -7,9 +7,9 @@ export XDG_CONFIG_HOME = $(HOME)/.config
 
 all: $(OS)
 
-macos: core-macos devtools packages link
+macos: core-macos devtools packages vscode-extensions link
 
-linux: core-linux devtools link
+linux: core-linux devtools vscode-extensions link
 
 core-macos: brew 
 
@@ -49,8 +49,8 @@ brew-packages: brew
 cask-apps: brew
 	brew bundle --file=$(DOTFILES_DIR)/install/Caskfile || true
 
-vscode-extensions: cask-apps
-	for EXT in $$(cat install/code-extensions); do code --install-extension $$EXT; done
+vscode-extensions:
+	is-executable code && for EXT in $$(cat install/code-extensions); do code --install-extension $$EXT; done
 
 link: zsh stow-$(OS)
 	for FILE in $$(\ls -A dotfiles); do if [ -f $(HOME)/$$FILE -a ! -h $(HOME)/$$FILE ]; then \
