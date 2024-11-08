@@ -10,6 +10,8 @@ just takes code and scripts from the internet without understanding them is all 
 * My [ZSH](https://www.zsh.org/) and [OhMyZsh](https://github.com/ohmyzsh/ohmyzsh) config, based on the [PowerLevel10k](https://github.com/romkatv/powerlevel10k) theme
   and also includes my preferred extensions
 * Install [MISE](https://github.com/jdx/mise) to help with installation of dev tools and other useful bits
+* Includes a bunch of apps I like which I would install on a MacOS build (check `install/Caskfile` for those)
+* Adds extensions I like to VSCode, again have a look in `install/code-extensions` for the list
 * Does basic package updates and upgrades in linux distros
 
 ## Installation
