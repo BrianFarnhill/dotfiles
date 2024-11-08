@@ -122,4 +122,4 @@ export XDG_CONFIG_HOME="$HOME/.config"
 eval "$(~/.local/bin/mise activate zsh)"
 
 # Local machine specific content can be added to .local.zshrc
-test -f ~/.local.zshrc || source ~/.local.zshrc
+test -f ~/.local.zshrc && source ~/.local.zshrc
