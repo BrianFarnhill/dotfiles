@@ -3,12 +3,13 @@ OS := $(shell bin/is-supported bin/is-macos macos linux)
 HOMEBREW_PREFIX := $(shell bin/is-supported bin/is-macos $(shell bin/is-supported bin/is-arm64 /opt/homebrew /usr/local) /home/linuxbrew/.linuxbrew)
 PATH := $(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(N_PREFIX)/bin:$(PATH)
 export ACCEPT_EULA=Y
+export XDG_CONFIG_HOME = $(HOME)/.config
 
 all: $(OS)
 
-macos: core-macos link
+macos: core-macos link devtools
 
-linux: core-linux link
+linux: core-linux link devtools
 
 core-macos: brew 
 
@@ -43,8 +44,15 @@ link: zsh stow-$(OS)
 	for FILE in $$(\ls -A dotfiles); do if [ -f $(HOME)/$$FILE -a ! -h $(HOME)/$$FILE ]; then \
 		mv -v $(HOME)/$$FILE $(HOME)/$$FILE.bak; fi; done
 	stow -t "$(HOME)" dotfiles
+	mkdir -p "$(XDG_CONFIG_HOME)"
+	stow -t "$(XDG_CONFIG_HOME)" config
 
 unlink: stow-$(OS)
 	stow --delete -t "$(HOME)" dotfiles
 	for FILE in $$(\ls -A dotfiles); do if [ -f $(HOME)/$$FILE.bak ]; then \
 		mv -v $(HOME)/$$FILE.bak $(HOME)/$$FILE; fi; done
+
+devtools: nvm
+
+nvm: 
+	command -v nvm || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
