@@ -119,7 +119,7 @@ source $ZSH/oh-my-zsh.sh
 export XDG_CONFIG_HOME="$HOME/.config"
 
 # MISE - https://github.com/jdx/mise/tree/main
-eval "$(~/.local/bin/mise activate zsh)"
+test -f ~/.local/bin/mise && eval "$(~/.local/bin/mise activate zsh)"
 
 # Local machine specific content can be added to .local.zshrc
 test -f ~/.local.zshrc && source ~/.local.zshrc
