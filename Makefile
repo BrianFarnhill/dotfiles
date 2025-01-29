@@ -12,6 +12,8 @@ macos: core-macos devtools packages vscode-extensions link
 linux: core-linux devtools vscode-extensions link
 
 core-macos: brew 
+	brew install docker && brew link docker
+	brew install colima && brew services restart colima && colima start
 
 core-linux:
 	sudo apt-get update
@@ -22,7 +24,7 @@ core-linux:
 packages: brew-packages cask-apps
 
 stow-macos: brew
-	is-executable stow || brew install stow
+	brew install stow
 
 stow-linux: core-linux
 	is-executable stow || sudo apt-get -y install stow
