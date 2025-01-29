@@ -1,5 +1,4 @@
 cask "1password"
-cask "alt-tab"
 cask "docker"
 cask "insomnia"
 cask "iterm2"
