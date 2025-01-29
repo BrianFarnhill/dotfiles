@@ -2,14 +2,15 @@ DOTFILES_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 OS := $(shell bin/is-supported bin/is-macos macos linux)
 HOMEBREW_PREFIX := $(shell bin/is-supported bin/is-macos $(shell bin/is-supported bin/is-arm64 /opt/homebrew /usr/local) /home/linuxbrew/.linuxbrew)
 PATH := $(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(N_PREFIX)/bin:$(PATH)
+ARCH := $(shell bin/is-supported bin/is-arm64 aarch64 x86_64)
 export ACCEPT_EULA=Y
 export XDG_CONFIG_HOME = $(HOME)/.config
 
 all: $(OS)
 
-macos: core-macos devtools packages vscode-extensions link
+macos: core-macos devtools packages vscode-extensions link aws-macos
 
-linux: core-linux devtools vscode-extensions link
+linux: core-linux devtools vscode-extensions link aws-linux
 
 core-macos: brew 
 	brew install docker && brew link docker
@@ -41,6 +42,12 @@ zsh-macos:
 
 zsh-linux:
 	is-executable zsh || apt install zsh
+
+aws-linux:
+	is-executable aws || curl "https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH).zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install
+
+aws-macos:
+	is-executable aws || curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target / && rm AWSCLIV2.pkg 
 
 brew:
 	is-executable brew || curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash
