@@ -75,6 +75,7 @@ plugins=(
     git
     aws
     git-extras
+    jfrog
     pip
     python
     zsh-syntax-highlighting
