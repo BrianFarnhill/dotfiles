@@ -22,7 +22,7 @@ core-linux:
 	sudo apt-get dist-upgrade -f
 	for NAME in $$(cat install/apt-packages); do sudo apt-get install $$NAME; done
 
-packages: brew-packages cask-apps
+packages: brew-packages
 
 stow-macos: brew
 	brew install stow
@@ -54,9 +54,6 @@ brew:
 
 brew-packages: brew
 	brew bundle --file=$(DOTFILES_DIR)/install/Brewfile || true
-
-cask-apps: brew
-	brew bundle --file=$(DOTFILES_DIR)/install/Caskfile || true
 
 vscode-extensions:
 	-is-executable code && for EXT in $$(cat install/code-extensions); do code --install-extension $$EXT; done
