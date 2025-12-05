@@ -124,3 +124,5 @@ test -f ~/.local/bin/mise && eval "$(~/.local/bin/mise activate zsh)"
 
 # Local machine specific content can be added to .local.zshrc
 test -f ~/.local.zshrc && source ~/.local.zshrc
+
+export SSH_AUTH_SOCK=~/.1password/agent.sock
