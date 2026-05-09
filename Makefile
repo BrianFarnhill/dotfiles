@@ -1,7 +1,7 @@
 DOTFILES_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 OS := $(shell bin/is-supported bin/is-macos macos linux)
 HOMEBREW_PREFIX := $(shell bin/is-supported bin/is-macos $(shell bin/is-supported bin/is-arm64 /opt/homebrew /usr/local) /home/linuxbrew/.linuxbrew)
-PATH := $(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(N_PREFIX)/bin:$(PATH)
+PATH := $(HOMEBREW_PREFIX)/bin:$(DOTFILES_DIR)/bin:$(PATH)
 ARCH := $(shell bin/is-supported bin/is-arm64 aarch64 x86_64)
 export ACCEPT_EULA=Y
 export XDG_CONFIG_HOME = $(HOME)/.config
@@ -14,13 +14,13 @@ linux: core-linux devtools vscode-extensions link aws-linux
 
 core-macos: brew 
 	brew install docker && brew link docker
-	brew install colima && brew services restart colima && colima start
+	brew install colima && colima status > /dev/null 2>&1 || colima start
 
 core-linux:
 	sudo apt-get update
 	sudo apt-get upgrade -y
 	sudo apt-get dist-upgrade -f
-	for NAME in $$(cat install/apt-packages); do sudo apt-get install $$NAME; done
+	for NAME in $$(cat install/apt-packages); do sudo apt-get install -y $$NAME; done
 
 packages: brew-packages
 
@@ -41,10 +41,10 @@ zsh-macos:
 	is-executable zsh || brew install zsh
 
 zsh-linux:
-	is-executable zsh || apt install zsh
+	is-executable zsh || apt install -y zsh
 
 aws-linux:
-	is-executable aws || curl "https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH).zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install
+	is-executable aws || curl "https://awscli.amazonaws.com/awscli-exe-linux-$(ARCH).zip" -o "awscliv2.zip" && unzip awscliv2.zip && sudo ./aws/install && rm -rf awscliv2.zip aws/
 
 aws-macos:
 	is-executable aws || curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target / && rm AWSCLIV2.pkg 
@@ -53,17 +53,19 @@ brew:
 	is-executable brew || curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh | bash
 
 brew-packages: brew
-	brew bundle --file=$(DOTFILES_DIR)/install/Brewfile || true
+	brew bundle --file=$(DOTFILES_DIR)/install/Brewfile
 
 vscode-extensions:
 	-is-executable code && for EXT in $$(cat install/code-extensions); do code --install-extension $$EXT; done
 
-link: zsh stow-$(OS)
+link-files: stow-$(OS)
 	for FILE in $$(\ls -A dotfiles); do if [ -f $(HOME)/$$FILE -a ! -h $(HOME)/$$FILE ]; then \
 		mv -v $(HOME)/$$FILE $(HOME)/$$FILE.bak; fi; done
 	stow -t "$(HOME)" dotfiles
 	mkdir -p "$(XDG_CONFIG_HOME)"
 	stow -t "$(XDG_CONFIG_HOME)" config
+
+link: link-files zsh
 
 unlink: stow-$(OS)
 	stow --delete -t "$(HOME)" dotfiles
@@ -73,4 +75,4 @@ unlink: stow-$(OS)
 devtools: mise
 
 mise: 
-	is-executable mise || curl https://mise.run | sh
+	is-executable mise || curl -fsSL https://mise.run | sh

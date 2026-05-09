@@ -12,7 +12,6 @@ brew "cargo-lambda/tap/cargo-lambda"
 
 cask "1password"
 cask "1password-cli"
-cask "docker-desktop"
 cask "insomnia"
 cask "iterm2"
 cask "nosql-workbench"
