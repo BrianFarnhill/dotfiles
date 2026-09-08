@@ -1,0 +1,7 @@
+# Everything in this repo is consumed by Unix shells (bin/* helpers, dotfiles,
+# Makefile) so it must stay LF regardless of what a Windows checkout would
+# otherwise do. Only the Windows batch formats need CRLF.
+* text=auto eol=lf
+
+*.cmd text eol=crlf
+*.bat text eol=crlf
