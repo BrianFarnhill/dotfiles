@@ -1,0 +1,19 @@
+{
+  "$comment": "Configuration for windows/bootstrap.ps1 and the PowerShell profile. Paths are relative to the repo root unless they start with '~' or a drive letter.",
+  "wingetPackages": "windows/winget.json",
+  "vscodeExtensions": "install/code-extensions",
+  "profileSource": "windows/Microsoft.PowerShell_profile.ps1",
+  "ohMyPoshTheme": "windows/oh-my-posh.json",
+  "editor": "code --wait",
+  "localProfile": "~/.local.profile.ps1",
+  "xdgConfigHome": "~/.config",
+  "git": {
+    "$comment": "1Password's SSH agent listens on the openssh-ssh-agent named pipe. Git for Windows' bundled ssh cannot talk to a named pipe, so point git at the Windows OpenSSH client instead. This is the Windows equivalent of the SSH_AUTH_SOCK export in dotfiles/.zshrc.",
+    "sshCommand": "C:/Windows/System32/OpenSSH/ssh.exe",
+    "agentPipe": "\\\\.\\pipe\\openssh-ssh-agent"
+  },
+  "mise": {
+    "$comment": "https://mise.jdx.dev/installing-mise.html - winget is the officially documented Windows install method.",
+    "wingetId": "jdx.mise"
+  }
+}
