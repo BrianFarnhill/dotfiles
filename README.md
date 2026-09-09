@@ -86,6 +86,14 @@ agent); the script reports whether it is listening.
 **Using WSL?** Then this section is not for you - run the linux track (`make`) inside your WSL
 distro and leave the Windows side alone.
 
+### Environment variables outside your shell
+
+`windows/bootstrap.ps1` persists `DOTFILES_DIR` and `XDG_CONFIG_HOME` as user environment
+variables rather than setting them only in the PowerShell profile, so processes that never load
+that profile still see them. `XDG_CONFIG_HOME` matters most: XDG-aware tools honour it, and the
+GitHub CLI is one of them — with it set, `gh auth login` writes to `$XDG_CONFIG_HOME/gh/hosts.yml`
+rather than `%AppData%\GitHub CLI`, so a shell without the variable would report you as logged out.
+
 ### mise tools outside your shell
 
 `mise activate` only reaches interactive shells. `dotfiles/.zshenv` also puts mise's shims

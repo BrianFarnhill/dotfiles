@@ -115,20 +115,47 @@ function Test-DeveloperMode {
 # Steps
 # ---------------------------------------------------------------------------
 
-function Register-DotfilesRoot {
-    # The profile needs to find this repo even when it was installed as a copy
-    # rather than a symlink, so record the location for the user.
-    Write-Step 'Recording the dotfiles location'
+function Set-UserEnvironmentVariable {
+    <#
+        Persist a variable for the user and apply it to this process, so the
+        rest of the run sees it too. Idempotent: says so and does nothing when
+        the value is already right.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][string]$Value
+    )
 
-    $current = [Environment]::GetEnvironmentVariable('DOTFILES_DIR', 'User')
-    if ($current -eq $script:RepoRoot) {
-        Write-Ok "DOTFILES_DIR already set to $script:RepoRoot"
+    if ([Environment]::GetEnvironmentVariable($Name, 'User') -eq $Value) {
+        Write-Ok "$Name already set to $Value"
     }
     else {
-        [Environment]::SetEnvironmentVariable('DOTFILES_DIR', $script:RepoRoot, 'User')
-        Write-Ok "Set user DOTFILES_DIR to $script:RepoRoot"
+        [Environment]::SetEnvironmentVariable($Name, $Value, 'User')
+        Write-Ok "Set user $Name to $Value"
     }
-    $env:DOTFILES_DIR = $script:RepoRoot
+    Set-Item -Path "env:$Name" -Value $Value
+}
+
+function Register-Environment {
+    <#
+        These are set for the user rather than only in the PowerShell profile,
+        because plenty of things never load that profile - cmd, editor tasks,
+        anything started from Explorer.
+
+        DOTFILES_DIR lets the profile find this repo even when it was installed
+        as a copy rather than a symlink.
+
+        XDG_CONFIG_HOME matters more than it looks. XDG-aware tools honour it,
+        and the GitHub CLI is one of them: with it set, `gh auth login` writes
+        to $XDG_CONFIG_HOME/gh/hosts.yml instead of %AppData%\GitHub CLI. If
+        only profile-loaded shells saw the variable, gh would find those
+        credentials in a PowerShell session and report you as logged out
+        everywhere else.
+    #>
+    Write-Step 'Recording environment variables'
+
+    Set-UserEnvironmentVariable -Name 'DOTFILES_DIR' -Value $script:RepoRoot
+    Set-UserEnvironmentVariable -Name 'XDG_CONFIG_HOME' -Value (Resolve-DotfilesPath $script:Config.xdgConfigHome)
 }
 
 function Get-InstalledWingetPackage {
@@ -697,7 +724,7 @@ Write-Info "PowerShell: $($PSVersionTable.PSVersion)"
 Write-Info "Elevated:   $(Test-IsElevated)"
 Write-Info "Dev Mode:   $(Test-DeveloperMode)"
 
-Register-DotfilesRoot
+Register-Environment
 if (-not $SkipApps) { Install-Apps }
 if (-not $SkipApps) { Confirm-OhMyPosh }
 # config/ has to be in place before mise is asked to install what it declares.
