@@ -65,7 +65,8 @@ pwsh -File windows/bootstrap.ps1
 ```
 
 The script installs the apps listed in `windows/winget.json`, installs the shared VS Code
-extensions, installs mise and the tools in `config/mise/config.toml`, links `config/` into
+extensions, installs mise and the tools in `config/mise/config.toml`, puts mise's shims
+directory on your PATH so those tools work outside PowerShell too, links `config/` into
 `$XDG_CONFIG_HOME` the way `stow` does on the other platforms, links
 `windows/Microsoft.PowerShell_profile.ps1` to `$PROFILE.CurrentUserAllHosts`, and points git at
 the 1Password SSH agent. It is idempotent, so

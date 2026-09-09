@@ -432,6 +432,50 @@ function Install-MiseTools {
     else {
         Write-Note "mise install exited with code $LASTEXITCODE"
     }
+
+    Add-MiseShimsToPath -Mise $mise
+}
+
+function Add-MiseShimsToPath {
+    <#
+        `mise activate` only puts tools on PATH inside shells that ran it, which
+        on Windows means an interactive PowerShell session and nothing else -
+        not cmd, not VS Code tasks, not anything launched from Explorer. Putting
+        the shims directory on the user PATH covers those, which is what a tool
+        installed by winget or brew would have given us.
+
+        Both mechanisms coexist: activate puts the real binaries ahead of the
+        shims for interactive shells, and the shims answer everywhere else.
+    #>
+    param([Parameter(Mandatory)]$Mise)
+
+    # Ask mise where its shims live rather than assuming a layout.
+    $shims = $null
+    try {
+        $doctor = & $Mise.Source doctor --json 2>$null | Out-String
+        if ($doctor.Trim()) { $shims = ($doctor | ConvertFrom-Json).dirs.shims }
+    }
+    catch {
+        $shims = $null
+    }
+
+    if (-not $shims) {
+        Write-Note 'Could not determine the mise shims directory; skipping the PATH update.'
+        return
+    }
+
+    $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
+    $entries = @($userPath -split ';' | Where-Object { $_ })
+
+    if ($entries -contains $shims) {
+        Write-Ok "mise shims already on PATH ($shims)"
+        return
+    }
+
+    [Environment]::SetEnvironmentVariable('Path', (@($entries) + $shims) -join ';', 'User')
+    Write-Ok "Added the mise shims directory to your PATH ($shims)"
+    Write-Info 'Tools installed by mise are available outside PowerShell in new processes.'
+    Update-SessionPath
 }
 
 function Install-Mise {
