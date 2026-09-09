@@ -65,8 +65,10 @@ pwsh -File windows/bootstrap.ps1
 ```
 
 The script installs the apps listed in `windows/winget.json`, installs the shared VS Code
-extensions, installs mise, links `windows/Microsoft.PowerShell_profile.ps1` to
-`$PROFILE.CurrentUserAllHosts`, and points git at the 1Password SSH agent. It is idempotent, so
+extensions, installs mise and the tools in `config/mise/config.toml`, links `config/` into
+`$XDG_CONFIG_HOME` the way `stow` does on the other platforms, links
+`windows/Microsoft.PowerShell_profile.ps1` to `$PROFILE.CurrentUserAllHosts`, and points git at
+the 1Password SSH agent. It is idempotent, so
 re-running it is a no-op: only missing packages are imported, and upgrading stays a deliberate
 `winget upgrade` rather than something bootstrapping does behind your back. Individual steps can
 be skipped with `-SkipApps`, `-SkipMise`, `-SkipExtensions`, `-SkipProfile` and `-SkipGit`.

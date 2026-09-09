@@ -303,6 +303,137 @@ function Confirm-OhMyPosh {
     Write-Note "oh-my-posh $version at $($omp.Source) is too old - the profile needs v7 or newer for 'oh-my-posh init'.$hint Remove the old one (for a scoop install: scoop uninstall oh-my-posh) or reorder PATH."
 }
 
+function Install-LinkOrCopy {
+    <#
+        Put $Source at $Target, preferring a symlink and falling back to a copy.
+        Returns what it did so the caller can report it.
+
+        An unrelated file already at the target is backed up once. After that
+        the copy belongs to the repo and later runs overwrite it, so refreshing
+        a config file does not leave a trail of .bak files behind.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Source,
+        [Parameter(Mandatory)][string]$Target
+    )
+
+    $backedUp = $false
+    $existing = Get-Item -LiteralPath $Target -Force -ErrorAction SilentlyContinue
+    if ($existing) {
+        if ($existing.LinkType -eq 'SymbolicLink') {
+            $resolved = if ($existing.LinkTarget) {
+                (Resolve-Path -LiteralPath $existing.LinkTarget -ErrorAction SilentlyContinue).Path
+            }
+            if ($resolved -eq $Source) { return 'already-linked' }
+            Remove-Item -LiteralPath $Target -Force
+        }
+        else {
+            $same = (Get-Content -LiteralPath $Target -Raw -ErrorAction SilentlyContinue) -eq
+                    (Get-Content -LiteralPath $Source -Raw)
+            if ($same) { return 'already-copied' }
+
+            $backup = "$Target.bak"
+            if (-not (Test-Path -LiteralPath $backup)) {
+                Move-Item -LiteralPath $Target -Destination $backup
+                $backedUp = $true
+            }
+            else {
+                Remove-Item -LiteralPath $Target -Force
+            }
+        }
+    }
+
+    try {
+        New-Item -ItemType SymbolicLink -Path $Target -Value $Source -ErrorAction Stop | Out-Null
+        if ($backedUp) { return 'linked-after-backup' }
+        return 'linked'
+    }
+    catch {
+        Copy-Item -LiteralPath $Source -Destination $Target -Force
+        if ($backedUp) { return 'copied-after-backup' }
+        return 'copied'
+    }
+}
+
+function Install-XdgConfig {
+    <#
+        The Windows half of the Makefile's `stow -t "$(XDG_CONFIG_HOME)" config`,
+        so config/ lands in the same place on every platform. mise in particular
+        reads ~/.config/mise/config.toml on Windows as well as on macOS and linux.
+    #>
+    Write-Step 'Linking config files into XDG_CONFIG_HOME'
+
+    $configDir = Join-Path $script:RepoRoot 'config'
+    if (-not (Test-Path -LiteralPath $configDir)) {
+        Write-Note "No config directory at $configDir"
+        return
+    }
+
+    $xdg = Resolve-DotfilesPath $script:Config.xdgConfigHome
+    if (-not (Test-Path -LiteralPath $xdg)) {
+        New-Item -ItemType Directory -Path $xdg -Force | Out-Null
+        Write-Info "Created $xdg"
+    }
+
+    $files = @(Get-ChildItem -LiteralPath $configDir -File -Recurse |
+            Where-Object { $_.Name -ne '.placeholder' })
+
+    if ($files.Count -eq 0) {
+        Write-Ok 'Nothing to link'
+        return
+    }
+
+    $unchanged = 0
+    foreach ($file in $files) {
+        $relative = $file.FullName.Substring($configDir.Length).TrimStart('\', '/')
+        $target = Join-Path $xdg $relative
+        $targetDir = Split-Path -Parent $target
+        if (-not (Test-Path -LiteralPath $targetDir)) {
+            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+        }
+
+        $result = Install-LinkOrCopy -Source $file.FullName -Target $target
+        switch -Wildcard ($result) {
+            'already-*' { $unchanged++ }
+            '*-after-backup' { Write-Note "Backed up an existing $target to $target.bak" }
+            default { Write-Info "$result $relative" }
+        }
+    }
+
+    if ($unchanged -eq $files.Count) {
+        Write-Ok "All $($files.Count) config file(s) already in place"
+    }
+    else {
+        Write-Ok "Linked $($files.Count) config file(s) into $xdg"
+    }
+}
+
+function Install-MiseTools {
+    <#
+        Install whatever config/mise/config.toml asks for. This is how the
+        GitHub CLI arrives on every platform, since it is not in the Debian or
+        Ubuntu archives.
+    #>
+    Update-SessionPath
+    $mise = Get-AppCommand 'mise'
+    if (-not $mise) { return }
+
+    $miseConfig = Join-Path (Resolve-DotfilesPath $script:Config.xdgConfigHome) 'mise/config.toml'
+    if (-not (Test-Path -LiteralPath $miseConfig)) {
+        Write-Info 'No global mise config, skipping tool install'
+        return
+    }
+
+    Write-Info 'Installing tools from the global mise config'
+    & $mise.Source install 2>&1 | ForEach-Object { Write-Info $_.ToString() }
+    if ($LASTEXITCODE -eq 0) {
+        Write-Ok 'mise tools installed'
+    }
+    else {
+        Write-Note "mise install exited with code $LASTEXITCODE"
+    }
+}
+
 function Install-Mise {
     Write-Step 'Installing mise'
 
@@ -310,6 +441,7 @@ function Install-Mise {
     $mise = Get-AppCommand 'mise'
     if ($mise) {
         Write-Ok "mise already installed ($($mise.Source))"
+        Install-MiseTools
         return
     }
 
@@ -524,6 +656,8 @@ Write-Info "Dev Mode:   $(Test-DeveloperMode)"
 Register-DotfilesRoot
 if (-not $SkipApps) { Install-Apps }
 if (-not $SkipApps) { Confirm-OhMyPosh }
+# config/ has to be in place before mise is asked to install what it declares.
+if (-not $SkipProfile) { Install-XdgConfig }
 if (-not $SkipMise) { Install-Mise }
 if (-not $SkipExtensions) { Install-VSCodeExtensions }
 if (-not $SkipProfile) { Install-Profile }
