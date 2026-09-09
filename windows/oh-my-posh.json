@@ -100,50 +100,11 @@
           "style": "diamond",
           "background": "#444444",
           "foreground": "#00afaf",
-          "template": " {{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }} ",
+          "template": " {{ .Venv }} ",
           "properties": {
-            "fetch_version": true,
+            "display_mode": "environment",
             "fetch_virtual_env": true,
-            "display_mode": "context"
-          },
-          "leading_diamond": "",
-          "trailing_diamond": ""
-        },
-        {
-          "type": "go",
-          "style": "diamond",
-          "background": "#444444",
-          "foreground": "#00afaf",
-          "template": " {{ .Full }} ",
-          "properties": {
-            "fetch_version": true,
-            "display_mode": "files"
-          },
-          "leading_diamond": "",
-          "trailing_diamond": ""
-        },
-        {
-          "type": "node",
-          "style": "diamond",
-          "background": "#444444",
-          "foreground": "#5faf00",
-          "template": " {{ .Full }} ",
-          "properties": {
-            "fetch_version": true,
-            "display_mode": "context"
-          },
-          "leading_diamond": "",
-          "trailing_diamond": ""
-        },
-        {
-          "type": "ruby",
-          "style": "diamond",
-          "background": "#444444",
-          "foreground": "#d75f87",
-          "template": " {{ .Full }} ",
-          "properties": {
-            "fetch_version": true,
-            "display_mode": "files"
+            "fetch_version": false
           },
           "leading_diamond": "",
           "trailing_diamond": ""
