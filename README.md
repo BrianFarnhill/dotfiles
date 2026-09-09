@@ -86,6 +86,14 @@ agent); the script reports whether it is listening.
 **Using WSL?** Then this section is not for you - run the linux track (`make`) inside your WSL
 distro and leave the Windows side alone.
 
+### mise tools outside your shell
+
+`mise activate` only reaches interactive shells. `dotfiles/.zshenv` also puts mise's shims
+directory on `PATH`, and `windows/bootstrap.ps1` adds it to the Windows user `PATH`, so tools
+declared in `config/mise/config.toml` work in scripts, editor tasks and anything else that does
+not source your shell rc. Interactive shells still prefer the real binaries that `mise activate`
+puts ahead of the shims.
+
 ## Post-Install
 
 After installation is done, have a think about running the below additional config items:
