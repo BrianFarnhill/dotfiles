@@ -29,9 +29,6 @@
           "PackageIdentifier": "Microsoft.WindowsTerminal"
         },
         {
-          "PackageIdentifier": "SlackTechnologies.Slack"
-        },
-        {
           "PackageIdentifier": "jqlang.jq"
         }
       ],
