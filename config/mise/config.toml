@@ -1,0 +1,14 @@
+# Global mise tools, stowed to $XDG_CONFIG_HOME/mise/config.toml.
+#
+# The Makefile already does `stow -t "$(XDG_CONFIG_HOME)" config` on macOS and
+# linux, and windows/bootstrap.ps1 links the same tree on Windows. mise reads
+# ~/.config/mise/config.toml on all three.
+#
+# Tools listed here are installed on every platform without needing a distro
+# package. Add machine specific tools with `mise use --global <tool>` instead of
+# putting them here.
+
+[tools]
+# The GitHub CLI is not in the Debian or Ubuntu archives, so this is how linux
+# gets it without adding a third party apt repository.
+gh = "latest"

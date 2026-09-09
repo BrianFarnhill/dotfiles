@@ -1,9 +1,10 @@
 # Brian's dot files
 
 This is a collection of scripts and config that I use to configure my environments. 
-I've specifically targeted MacOS and Linux distro's that use `apt` as their package manager. Take
-anything here that is useful to you, but do so at your own risk (don't be that person that
-just takes code and scripts from the internet without understanding them is all I'm saying).
+I've specifically targeted MacOS and Linux distro's that use `apt` as their package manager, and
+there's a separate native Windows track too. Take anything here that is useful to you, but do so
+at your own risk (don't be that person that just takes code and scripts from the internet without
+understanding them is all I'm saying).
 
 ## What's in the box?
 
@@ -13,8 +14,12 @@ just takes code and scripts from the internet without understanding them is all 
 * Includes a bunch of apps I like which I would install on a MacOS build (check `install/Brewfile` for those)
 * Adds extensions I like to VSCode, again have a look in `install/code-extensions` for the list
 * Does basic package updates and upgrades in linux distros
+* A parallel native Windows setup in `windows/`, driven by PowerShell 7 and `winget` instead of
+  `make` and Homebrew, with an [oh-my-posh](https://ohmyposh.dev/) prompt in place of PowerLevel10k
 
 ## Installation
+
+### macOS and Linux
 
 On a fresh install of MacOS you'll need the dev tools to get `git` and `make`, so start there in a
 terminal window.
@@ -38,6 +43,64 @@ git clone https://github.com/BrianFarnhill/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 make
 ```
+
+### Windows (native)
+
+Native Windows has its own entrypoint - there is no `make` here. `windows/bootstrap.ps1` is the
+Windows equivalent, and it shares the cross-platform pieces of this repo (the VS Code extension
+list in `install/code-extensions`, and mise) while installing everything else the Windows way.
+
+Prerequisites:
+
+* **PowerShell 7** (`winget install Microsoft.PowerShell`) - Windows PowerShell 5.1 is not enough
+* **winget**, which ships as *App Installer* from the Microsoft Store on current Windows builds
+* Optionally **Developer Mode** (Settings > System > For developers), or an elevated shell, so the
+  PowerShell profile can be symlinked. Without it the profile is copied instead and the script
+  tells you so - re-run the script after changing the profile to refresh the copy.
+
+```powershell
+git clone https://github.com/BrianFarnhill/dotfiles.git $HOME\.dotfiles
+cd $HOME\.dotfiles
+pwsh -File windows/bootstrap.ps1
+```
+
+The script installs the apps listed in `windows/winget.json`, installs the shared VS Code
+extensions, installs mise and the tools in `config/mise/config.toml`, puts mise's shims
+directory on your PATH so those tools work outside PowerShell too, links `config/` into
+`$XDG_CONFIG_HOME` the way `stow` does on the other platforms, links
+`windows/Microsoft.PowerShell_profile.ps1` to `$PROFILE.CurrentUserAllHosts`, and points git at
+the 1Password SSH agent. It is idempotent, so
+re-running it is a no-op: only missing packages are imported, and upgrading stays a deliberate
+`winget upgrade` rather than something bootstrapping does behind your back. Individual steps can
+be skipped with `-SkipApps`, `-SkipMise`, `-SkipExtensions`, `-SkipProfile` and `-SkipGit`.
+
+
+Paths, the app list and the oh-my-posh theme all live in files rather than in the script:
+`windows/config.json`, `windows/winget.json` and `windows/oh-my-posh.json`. Machine specific
+additions go in `~/.local.profile.ps1`, which the profile sources if it exists - the same idea as
+`~/.local.zshrc` on the other platforms.
+
+You still need to turn on the SSH agent inside 1Password (Settings > Developer > Use the SSH
+agent); the script reports whether it is listening.
+
+**Using WSL?** Then this section is not for you - run the linux track (`make`) inside your WSL
+distro and leave the Windows side alone.
+
+### Environment variables outside your shell
+
+`windows/bootstrap.ps1` persists `DOTFILES_DIR` and `XDG_CONFIG_HOME` as user environment
+variables rather than setting them only in the PowerShell profile, so processes that never load
+that profile still see them. `XDG_CONFIG_HOME` matters most: XDG-aware tools honour it, and the
+GitHub CLI is one of them — with it set, `gh auth login` writes to `$XDG_CONFIG_HOME/gh/hosts.yml`
+rather than `%AppData%\GitHub CLI`, so a shell without the variable would report you as logged out.
+
+### mise tools outside your shell
+
+`mise activate` only reaches interactive shells. `dotfiles/.zshenv` also puts mise's shims
+directory on `PATH`, and `windows/bootstrap.ps1` adds it to the Windows user `PATH`, so tools
+declared in `config/mise/config.toml` work in scripts, editor tasks and anything else that does
+not source your shell rc. Interactive shells still prefer the real binaries that `mise activate`
+puts ahead of the shims.
 
 ## Post-Install
 
