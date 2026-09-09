@@ -71,10 +71,6 @@ re-running it is a no-op: only missing packages are imported, and upgrading stay
 `winget upgrade` rather than something bootstrapping does behind your back. Individual steps can
 be skipped with `-SkipApps`, `-SkipMise`, `-SkipExtensions`, `-SkipProfile` and `-SkipGit`.
 
-Spotify is listed as the Microsoft Store package (`9NCBCSZSJRSB`) rather than `Spotify.Spotify`,
-because the desktop installer refuses to install alongside a Store copy. The prompt needs
-oh-my-posh v7 or newer; if an older one from another package manager is earlier on your PATH the
-script says so.
 
 Paths, the app list and the oh-my-posh theme all live in files rather than in the script:
 `windows/config.json`, `windows/winget.json` and `windows/oh-my-posh.json`. Machine specific
