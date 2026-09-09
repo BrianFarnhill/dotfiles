@@ -68,135 +68,143 @@
       "filler": "<#6c6c6c>─</>",
       "segments": [
         {
-          "type": "text",
-          "style": "plain",
-          "foreground": "#444444",
-          "background": "transparent",
-          "template": ""
-        },
-        {
           "type": "status",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#5faf00",
           "template": " {{ .String }} ",
           "properties": {
-            "always_enabled": true
+            "always_enabled": false
           },
           "foreground_templates": [
             "{{ if gt .Code 0 }}#d70000{{ end }}"
-          ]
+          ],
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "executiontime",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#a8a8a8",
-          "template": "<#949494></> {{ .FormattedMs }} ",
+          "template": "{{ .FormattedMs }} ",
           "properties": {
             "threshold": 3000,
             "style": "round"
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "python",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#00afaf",
-          "template": "<#949494></> {{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }} ",
+          "template": "{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }} ",
           "properties": {
             "fetch_version": true,
             "fetch_virtual_env": true,
             "display_mode": "context"
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "go",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#00afaf",
-          "template": "<#949494></> {{ .Full }} ",
+          "template": "{{ .Full }} ",
           "properties": {
             "fetch_version": true,
             "display_mode": "files"
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "node",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#5faf00",
-          "template": "<#949494></> {{ .Full }} ",
+          "template": "{{ .Full }} ",
           "properties": {
             "fetch_version": true,
             "display_mode": "context"
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "ruby",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#d75f87",
-          "template": "<#949494></> {{ .Full }} ",
+          "template": "{{ .Full }} ",
           "properties": {
             "fetch_version": true,
             "display_mode": "files"
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "kubectl",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#af5fd7",
-          "template": "<#949494></> {{ .Context }}{{ if .Namespace }}/{{ .Namespace }}{{ end }} ",
+          "template": "{{ .Context }}{{ if .Namespace }}/{{ .Namespace }}{{ end }} ",
           "properties": {
             "display_error": false,
             "parse_kubeconfig": true
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "terraform",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#00afd7",
-          "template": "<#949494></> {{ .WorkspaceName }} ",
+          "template": "{{ .WorkspaceName }} ",
           "properties": {
             "display_default": false
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "aws",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#ff8700",
-          "template": "<#949494></> {{ .Profile }}{{ if .Region }}/{{ .Region }}{{ end }} ",
+          "template": "{{ .Profile }}{{ if .Region }}/{{ .Region }}{{ end }} ",
           "properties": {
             "display_default": false
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "az",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#0087d7",
-          "template": "<#949494></> {{ .Name }} ",
+          "template": "{{ .Name }} ",
           "properties": {
             "display_default": false
-          }
+          },
+          "leading_diamond": "",
+          "trailing_diamond": ""
         },
         {
           "type": "gcp",
-          "style": "plain",
+          "style": "diamond",
           "background": "#444444",
           "foreground": "#0087d7",
-          "template": "<#949494></> {{ .Project }} "
-        },
-        {
-          "type": "text",
-          "style": "plain",
-          "foreground": "#444444",
-          "background": "transparent",
-          "template": ""
+          "template": "{{ .Project }} ",
+          "leading_diamond": "",
+          "trailing_diamond": ""
         }
       ]
     },
